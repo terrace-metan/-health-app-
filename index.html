@@ -390,7 +390,7 @@ textarea.fi{resize:vertical;min-height:80px}
 
 <!-- Checkup modal -->
 <div class="mo" id="m-ck">
-  <div class="ms">
+  <div class="ms" onclick="event.stopPropagation()">
     <div class="ms-bar"></div>
     <div class="ms-title" style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0110 0v3"/><path d="M9 10v11M15 10v11"/><path d="M3 14h18"/></svg> 健診結果を記録</div>
     <input type="hidden" id="cm-id">
