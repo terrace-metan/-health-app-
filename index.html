@@ -85,9 +85,9 @@ textarea.fi{resize:vertical;min-height:80px}
 .btn-del{background:var(--red-l);color:var(--red);border:1.5px solid #fecaca}
 
 /* ── Modal ── */
-.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:500;align-items:flex-end;justify-content:center}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:500;align-items:flex-end;justify-content:center;touch-action:none}
 .mo.on{display:flex;animation:fi .15s}
-.ms{background:#fff;border-radius:22px 22px 0 0;padding:20px 18px calc(28px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;max-height:92vh;overflow-y:auto;animation:su .22s ease;-webkit-overflow-scrolling:touch;}
+.ms{background:#fff;border-radius:22px 22px 0 0;padding:20px 18px calc(40px + env(safe-area-inset-bottom,20px));width:100%;max-width:480px;max-height:96vh;height:auto;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;animation:su .22s ease;touch-action:pan-y;}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .ms-bar{width:34px;height:4px;background:var(--g200);border-radius:100px;margin:0 auto 18px}
 .ms-title{font-size:19px;font-weight:800;color:var(--g900);margin-bottom:18px}
