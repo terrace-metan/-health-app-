@@ -292,6 +292,18 @@ textarea.fi{resize:vertical;min-height:80px}
     <button class="tf-btn" onclick="filterTodo('high',this)">🔴 優先高</button>
   </div>
   <div id="todo-list"></div>
+  <div class="card" style="margin-top:4px">
+    <div class="card-t"><span class="i">➕</span>検診項目を追加</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">項目名</label><input class="fi" type="text" id="ct-name" placeholder="例：甲状腺検査"></div>
+      <div class="fg"><label class="fl">頻度</label><input class="fi" type="text" id="ct-freq" placeholder="例：年1回"></div>
+    </div>
+    <div class="fg"><label class="fl">優先度</label>
+      <select class="fi" id="ct-prio"><option value="high">🔴 高</option><option value="mid" selected>🟡 中</option><option value="low">🟢 定期</option></select>
+    </div>
+    <div class="fg"><label class="fl">メモ（任意）</label><input class="fi" type="text" id="ct-why" placeholder="追加した理由など"></div>
+    <button class="btn btn-t" onclick="addCustomTodo()">追加する</button>
+  </div>
 </div>
 
 <!-- WEIGHT -->
@@ -396,7 +408,8 @@ textarea.fi{resize:vertical;min-height:80px}
 
 <script>
 // ═══ STATE ═══
-let D=JSON.parse(localStorage.getItem('hm4')||'{"profile":{},"weights":[],"checkups":[],"schedules":[],"todoChecked":{}}');
+let D=JSON.parse(localStorage.getItem('hm4')||'{"profile":{},"weights":[],"checkups":[],"schedules":[],"todoChecked":{},"customTodos":[]}');
+if(!D.customTodos)D.customTodos=[];
 let PP=[]; // pending photos
 let WC=null; // weight chart
 let curScr='home';
@@ -469,7 +482,7 @@ function renderHome(){
   const ws=[...D.weights].sort((a,b)=>b.date.localeCompare(a.date));
   const lw=ws[0],h=p.height;
   const b=lw&&h?bmi(lw.weight,h):null;
-  const recs=getRecommendations(a,p.sex||'female');
+  const recs=[...getRecommendations(a,p.sex||'female'),...D.customTodos];
   const done=recs.filter(r=>D.todoChecked[r.id]).length;
 
   document.getElementById('home-hero').innerHTML=`
@@ -572,7 +585,7 @@ function renderTodo(){
     return;
   }
   document.getElementById('todo-profile-warn').innerHTML='';
-  const recs=getRecommendations(a,p.sex);
+  const recs=[...getRecommendations(a,p.sex),...D.customTodos];
   const done=recs.filter(r=>D.todoChecked[r.id]).length;
   const pct=recs.length?Math.round(done/recs.length*100):0;
 
@@ -598,7 +611,7 @@ function renderTodo(){
 function renderTodoList(){
   const p=D.profile,a=calcAge(p.birth);
   if(!a)return;
-  const recs=getRecommendations(a,p.sex);
+  const recs=[...getRecommendations(a,p.sex),...D.customTodos];
   let filtered=recs;
   if(todoFilter==='undone')filtered=recs.filter(r=>!D.todoChecked[r.id]);
   else if(todoFilter==='done')filtered=recs.filter(r=>D.todoChecked[r.id]);
@@ -618,14 +631,17 @@ function renderTodoList(){
         <div class="todo-cb${checked?' done':''}">${checked?'✓':''}</div>
       </button>
       <div class="todo-body" onclick="expandTodo('${r.id}')">
-        <div class="todo-name${checked?' done-txt':''}">${r.icon} ${r.name}${r.priority==='high'?` <span class="pl pl-r" style="font-size:9px">優先高</span>`:''}
+        <div class="todo-name${checked?' done-txt':''}">${r.icon} ${r.name}${r.priority==='high'?` <span class="pl pl-r" style="font-size:9px">優先高</span>`:''}${r.custom?` <span class="pl pl-gr" style="font-size:9px">自己追加</span>`:''}
         </div>
         <div class="todo-freq">📅 ${r.freq}</div>
         <div class="todo-expand" id="te-${r.id}">
           <div class="todo-exp-txt">${r.why}</div>
           ${r.what?`<ul class="todo-exp-list">${r.what.map(w=>`<li>${w}</li>`).join('')}</ul>`:''}
           ${r.tip?`<div style="margin-top:8px;padding:8px 10px;background:var(--teal-ll);border-radius:8px;font-size:11px;color:var(--teal-d);line-height:1.5">💡 ${r.tip}</div>`:''}
-          <button onclick="addToScheduleFromTodo('${r.name}')" style="margin-top:10px;padding:7px 14px;border-radius:100px;border:1.5px solid var(--teal);background:var(--teal-ll);font-size:12px;font-weight:700;color:var(--teal-d);cursor:pointer">📅 予定に追加する</button>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button onclick="addToScheduleFromTodo('${r.name}')" style="padding:7px 14px;border-radius:100px;border:1.5px solid var(--teal);background:var(--teal-ll);font-size:12px;font-weight:700;color:var(--teal-d);cursor:pointer">📅 予定に追加する</button>
+            ${r.custom?`<button onclick="delCustomTodo('${r.id}')" style="padding:7px 14px;border-radius:100px;border:1.5px solid #fecaca;background:var(--red-l);font-size:12px;font-weight:700;color:var(--red);cursor:pointer">🗑 削除</button>`:''}
+          </div>
         </div>
       </div>
     </div>`;
@@ -644,6 +660,26 @@ function expandTodo(id){
 function resetTodo(){
   if(!confirm('チェックをすべてリセットしますか？'))return;
   D.todoChecked={};save();renderTodo();toast('リセットしました');
+}
+function addCustomTodo(){
+  const name=document.getElementById('ct-name').value.trim();
+  const freq=document.getElementById('ct-freq').value.trim()||'任意';
+  const prio=document.getElementById('ct-prio').value;
+  const why=document.getElementById('ct-why').value.trim();
+  if(!name){toast('項目名を入力してください');return;}
+  const item={id:'c'+Date.now(),icon:'📌',name,freq,priority:prio,why:why||'自分で追加した検診項目です。',custom:true};
+  D.customTodos.push(item);
+  save();
+  document.getElementById('ct-name').value='';
+  document.getElementById('ct-freq').value='';
+  document.getElementById('ct-why').value='';
+  renderTodo();toast('項目を追加しました ✅');
+}
+function delCustomTodo(id){
+  if(!confirm('この項目を削除しますか？'))return;
+  D.customTodos=D.customTodos.filter(c=>c.id!==id);
+  delete D.todoChecked[id];
+  save();renderTodo();toast('削除しました');
 }
 function addToScheduleFromTodo(name){
   sw('sch',document.querySelectorAll('.ni')[4]);
@@ -824,12 +860,37 @@ function renderWeight(){
     document.getElementById('w-chart-card').style.display='block';
     const cd=[...D.weights].sort((a,b)=>a.date.localeCompare(b.date));
     if(WC)WC.destroy();
+    const h2=D.profile.height;
+    const normalMin=h2?parseFloat((18.5*(h2/100)**2).toFixed(1)):null;
+    const normalMax=h2?parseFloat((25*(h2/100)**2).toFixed(1)):null;
+    const ptColors=cd.map(w=>{
+      if(!h2)return'#00b5a3';
+      const b2=parseFloat(bmi(w.weight,h2));
+      return(b2>=18.5&&b2<25)?'#00b5a3':'#dc2626';
+    });
+    const zoneBgPlugin={
+      id:'weightZone',
+      beforeDraw(chart){
+        if(!normalMin||!normalMax)return;
+        const{ctx,chartArea,scales}=chart;
+        const{top,bottom,left,right}=chartArea;
+        const yNMax=scales.y.getPixelForValue(normalMax);
+        const yNMin=scales.y.getPixelForValue(normalMin);
+        ctx.save();
+        ctx.fillStyle='rgba(220,38,38,0.07)';
+        if(yNMax>top)ctx.fillRect(left,top,right-left,Math.max(0,yNMax-top));
+        if(yNMin<bottom)ctx.fillRect(left,yNMin,right-left,Math.max(0,bottom-yNMin));
+        ctx.restore();
+      }
+    };
     WC=new Chart(document.getElementById('wChart').getContext('2d'),{
       type:'line',
       data:{labels:cd.map(w=>fmt(w.date).replace('年','/').replace('月','/').replace('日','')),
-        datasets:[{data:cd.map(w=>w.weight),borderColor:'#00b5a3',backgroundColor:'rgba(0,181,163,.07)',tension:.35,pointRadius:4,pointBackgroundColor:'#00b5a3',fill:true}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{y:{ticks:{callback:v=>v+'kg'},grid:{color:'#f1f5f9'}},x:{grid:{display:false},ticks:{maxTicksLimit:6}}}}
+        datasets:[{data:cd.map(w=>w.weight),borderColor:'#00b5a3',backgroundColor:'rgba(0,181,163,.07)',tension:.35,pointRadius:5,pointBackgroundColor:ptColors,pointBorderColor:ptColors,fill:true,
+          segment:{borderColor:ctx=>{if(!normalMin||!normalMax)return'#00b5a3';const v0=ctx.p0.parsed.y,v1=ctx.p1.parsed.y;return(v0<normalMin||v0>=normalMax||v1<normalMin||v1>=normalMax)?'#ef4444':'#00b5a3';}}}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>{const w=cd[ctx.dataIndex];const bl=h2?` / BMI ${bmi(w.weight,h2)}（${bmiL(bmi(w.weight,h2))}）`:'';return ctx.parsed.y+'kg'+bl;}}}},
+        scales:{y:{ticks:{callback:v=>v+'kg'},grid:{color:'#f1f5f9'}},x:{grid:{display:false},ticks:{maxTicksLimit:6}}}},
+      plugins:[zoneBgPlugin]
     });
   } else document.getElementById('w-chart-card').style.display='none';
 
