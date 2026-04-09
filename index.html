@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>健康手帳</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --teal:#00b5a3;--teal-d:#008f80;--teal-l:#e6f9f7;--teal-ll:#f0fdfb;
+  --blue:#2563eb;--blue-l:#eff6ff;
+  --purple:#7c3aed;--purple-l:#f5f3ff;
+  --orange:#ea580c;--orange-l:#fff7ed;
+  --red:#dc2626;--red-l:#fef2f2;
+  --green:#16a34a;--green-l:#f0fdf4;
+  --yellow:#ca8a04;--yellow-l:#fefce8;
+  --g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;
+  --g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;--g900:#0f172a;
+  --r:14px;--r2:20px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.08);
+  --nav:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic UI',sans-serif;
+  background:#f0f4f8;color:var(--g700);max-width:480px;margin:0 auto;
+  min-height:100vh;padding-bottom:calc(var(--nav) + 8px);
+}
+
+/* ── Header ── */
+.hdr{
+  background:linear-gradient(135deg,#009e8f 0%,#00b5a3 60%,#00a5c4 100%);
+  padding:14px 18px 18px;position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 10px rgba(0,150,140,.28);
+}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{color:#fff;font-size:17px;font-weight:800;letter-spacing:.2px}
+.hdr-sub{color:rgba(255,255,255,.78);font-size:12px;margin-top:2px}
+.hdr-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;border:2px solid rgba(255,255,255,.38);flex-shrink:0}
+
+/* ── Bottom Nav ── */
+.bnav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;background:#fff;
+  border-top:1px solid var(--g200);display:flex;z-index:300;
+  height:var(--nav);padding-bottom:env(safe-area-inset-bottom,0px);
+  box-shadow:0 -2px 14px rgba(0,0,0,.07);
+}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--g400);font-size:10px;font-weight:600;padding:6px 2px}
+.ni.on{color:var(--teal)}
+.ni .ic{font-size:21px;line-height:1}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:calc(var(--nav) + 14px);right:18px;width:50px;height:50px;border-radius:50%;background:var(--teal);color:#fff;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(0,181,163,.38);display:flex;align-items:center;justify-content:center;z-index:201;transition:.18s}
+.fab:active{transform:scale(.92)}
+.fab.hide{display:none}
+
+/* ── Screen ── */
+.scr{display:none;padding:14px 14px 4px;animation:fi .18s ease}
+.scr.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ── Card ── */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:16px;margin-bottom:12px}
+.card-t{font-size:13px;font-weight:700;color:var(--g700);display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.card-t .i{font-size:16px}
+
+/* ── Form ── */
+.fg{margin-bottom:12px}
+.fl{font-size:11px;font-weight:700;color:var(--g400);margin-bottom:5px;display:block;letter-spacing:.3px;text-transform:uppercase}
+.fi{width:100%;padding:12px 13px;border-radius:10px;border:1.5px solid var(--g200);font-size:15px;color:var(--g900);background:#fff;font-family:inherit;transition:.18s}
+.fi:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,181,163,.1)}
+textarea.fi{resize:vertical;min-height:80px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:.15s;font-family:inherit;width:100%;margin-bottom:8px}
+.btn-t{background:var(--teal);color:#fff;box-shadow:0 2px 8px rgba(0,181,163,.28)}
+.btn-t:active{background:var(--teal-d)}
+.btn-g{background:var(--g100);color:var(--g600)}
+.btn-sm{padding:7px 13px;font-size:12px;width:auto;margin-bottom:0}
+.btn-del{background:var(--red-l);color:var(--red);border:1.5px solid #fecaca}
+
+/* ── Modal ── */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:500;align-items:flex-end;justify-content:center}
+.mo.on{display:flex;animation:fi .15s}
+.ms{background:#fff;border-radius:22px 22px 0 0;padding:20px 18px 28px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;animation:su .22s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ms-bar{width:34px;height:4px;background:var(--g200);border-radius:100px;margin:0 auto 18px}
+.ms-title{font-size:16px;font-weight:800;color:var(--g900);margin-bottom:18px}
+
+/* ── Pill ── */
+.pl{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;white-space:nowrap}
+.pl-t{background:var(--teal-l);color:var(--teal-d)}
+.pl-b{background:var(--blue-l);color:var(--blue)}
+.pl-r{background:var(--red-l);color:var(--red)}
+.pl-g{background:var(--green-l);color:var(--green)}
+.pl-y{background:var(--yellow-l);color:var(--yellow)}
+.pl-gr{background:var(--g100);color:var(--g500)}
+
+/* ── HOME ── */
+.hero{background:linear-gradient(135deg,#009e8f,#00b5a3 55%,#00a5c4 100%);border-radius:var(--r2);padding:18px;color:#fff;margin-bottom:12px;box-shadow:0 5px 20px rgba(0,181,163,.22)}
+.hero-name{font-size:19px;font-weight:800;margin-bottom:3px}
+.hero-sub{font-size:12px;opacity:.82}
+.hero-stats{display:flex;gap:10px;margin-top:14px}
+.hs{flex:1;background:rgba(255,255,255,.18);border-radius:10px;padding:10px 8px;text-align:center}
+.hs-v{font-size:20px;font-weight:800;line-height:1}
+.hs-l{font-size:9px;opacity:.78;margin-top:2px}
+.qg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.qc{background:#fff;border-radius:var(--r);padding:14px;box-shadow:var(--sh);cursor:pointer;display:flex;flex-direction:column;gap:7px;border:1.5px solid transparent;transition:.15s}
+.qc:active{transform:scale(.97)}
+.qc.hi{border-color:var(--teal);background:var(--teal-ll)}
+.qc .qi{font-size:24px}
+.qc .ql{font-size:12px;font-weight:700;color:var(--g600)}
+.qc .qv{font-size:16px;font-weight:800;color:var(--teal-d)}
+.qc .qs{font-size:11px;color:var(--g400)}
+
+.ncb{background:linear-gradient(135deg,var(--blue),#1d4ed8);border-radius:var(--r);padding:14px 16px;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 3px 12px rgba(37,99,235,.22);cursor:pointer}
+.ncb-ic{font-size:28px}
+.ncb-info{flex:1}
+.ncb-lbl{font-size:10px;opacity:.78;font-weight:600;margin-bottom:2px}
+.ncb-dt{font-size:16px;font-weight:800}
+.ncb-hp{font-size:12px;opacity:.8;margin-top:1px}
+.ncb-d{background:rgba(255,255,255,.18);border-radius:8px;padding:7px 11px;text-align:center;font-size:12px;font-weight:700;flex-shrink:0;white-space:nowrap;min-width:56px}
+
+/* ── TODO ── */
+.todo-banner{background:linear-gradient(135deg,var(--purple),#6d28d9);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:0 3px 12px rgba(124,58,237,.22)}
+.todo-banner-ic{font-size:26px}
+.todo-banner-info{flex:1}
+.todo-banner-t{font-size:15px;font-weight:800}
+.todo-banner-s{font-size:12px;opacity:.8;margin-top:2px}
+.todo-prog{background:rgba(255,255,255,.18);border-radius:8px;padding:6px 12px;text-align:center;font-size:13px;font-weight:800;flex-shrink:0;min-width:54px}
+
+.todo-item{
+  background:#fff;border-radius:var(--r);box-shadow:var(--sh);
+  margin-bottom:8px;overflow:hidden;
+  display:flex;align-items:stretch;
+}
+.todo-check-col{
+  width:54px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+  background:transparent;border:none;padding:0;
+  transition:.15s;
+}
+.todo-check-col:active{background:var(--g100)}
+.todo-cb{
+  width:26px;height:26px;border-radius:8px;border:2px solid var(--g300);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  transition:.2s;background:#fff;flex-shrink:0;
+}
+.todo-cb.done{background:var(--teal);border-color:var(--teal);color:#fff}
+.todo-body{flex:1;padding:13px 12px 13px 0;min-width:0;cursor:pointer}
+.todo-name{font-size:14px;font-weight:700;color:var(--g800);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.todo-name.done-txt{color:var(--g400);text-decoration:line-through}
+.todo-freq{font-size:11px;color:var(--g400);margin-top:3px}
+.todo-expand{display:none;margin-top:10px;border-top:1px solid var(--g100);padding-top:10px}
+.todo-item.open .todo-expand{display:block}
+.todo-exp-txt{font-size:12px;color:var(--g600);line-height:1.65}
+.todo-exp-list{padding-left:14px;margin-top:6px}
+.todo-exp-list li{font-size:12px;color:var(--g500);line-height:1.6}
+.todo-prio-col{width:5px;flex-shrink:0}
+
+.prio-high{background:var(--red)}
+.prio-mid{background:var(--yellow)}
+.prio-low{background:var(--teal)}
+
+.todo-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tf-btn{padding:6px 14px;border-radius:100px;border:1.5px solid var(--g200);background:#fff;font-size:12px;font-weight:700;color:var(--g500);cursor:pointer;transition:.15s}
+.tf-btn.on{border-color:var(--teal);background:var(--teal-l);color:var(--teal-d)}
+
+.todo-legend{display:flex;gap:12px;margin-bottom:14px;font-size:11px;color:var(--g400);flex-wrap:wrap}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tl-item{display:flex;align-items:center;gap:4px}
+
+.todo-progress-bar{background:var(--g100);border-radius:100px;height:6px;margin-bottom:4px;overflow:hidden}
+.todo-progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),#00c4b4);border-radius:100px;transition:.4s}
+
+.todo-reset-row{display:flex;justify-content:flex-end;margin-bottom:12px}
+.reset-btn{padding:6px 14px;border-radius:100px;border:1.5px solid var(--g200);background:#fff;font-size:11px;font-weight:700;color:var(--g500);cursor:pointer}
+
+/* ── Weight ── */
+.w-hero{background:linear-gradient(135deg,#009e8f,#00b5a3);border-radius:var(--r2);padding:18px;color:#fff;margin-bottom:12px;box-shadow:0 5px 18px rgba(0,181,163,.2)}
+.w-val{font-size:44px;font-weight:900;line-height:1}
+.w-unit{font-size:16px;opacity:.8}
+.w-bmi{font-size:13px;background:rgba(255,255,255,.18);border-radius:8px;padding:5px 11px;margin-top:10px;display:inline-block}
+.w-diff{font-size:12px;opacity:.82;margin-top:8px}
+.chart-wrap{height:175px;position:relative;margin-top:4px}
+
+.wli{display:flex;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid var(--g100)}
+.wli:last-child{border-bottom:none}
+.wli-dt{font-size:12px;color:var(--g400);min-width:84px}
+.wli-w{font-size:17px;font-weight:800;color:var(--g800)}
+.wli-b{font-size:11px;color:var(--g400)}
+.wli-diff{margin-left:auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px}
+.d-up{background:var(--orange-l);color:var(--orange)}
+.d-dn{background:var(--green-l);color:var(--green)}
+.wli-del{background:none;border:none;cursor:pointer;font-size:15px;color:var(--g300);padding:4px}
+
+/* ── Checkup ── */
+.ck-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden}
+.ck-hd{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer}
+.ck-dt{font-size:13px;font-weight:700;color:var(--g800)}
+.ck-hp{font-size:11px;color:var(--g400);margin-top:2px}
+.ck-ch{margin-left:auto;color:var(--g300);font-size:13px;transition:.2s}
+.ck-card.open .ck-ch{transform:rotate(180deg)}
+.ck-bd{display:none;padding:0 14px 14px;border-top:1px solid var(--g100)}
+.ck-card.open .ck-bd{display:block}
+.ck-st{font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 6px}
+.ck-txt{font-size:13px;color:var(--g600);line-height:1.7;white-space:pre-wrap}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pt{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;cursor:pointer;background:var(--g100)}
+.pt img{width:100%;height:100%;object-fit:cover}
+.pt-l{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ck-acts{display:flex;gap:8px;margin-top:12px}
+
+.pua{border:2px dashed var(--g300);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:.18s;color:var(--g400);font-size:13px;background:var(--g50)}
+.pua:active{border-color:var(--teal);background:var(--teal-ll)}
+.ppg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.ppi{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;background:var(--g100)}
+.ppi img{width:100%;height:100%;object-fit:cover}
+.ppi-rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ppi-l{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.48);color:#fff;border:none;font-size:9px;padding:2px 4px;font-family:inherit;text-align:center;width:100%}
+
+/* ── Schedule ── */
+.si{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:11px}
+.si-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.si-info{flex:1;min-width:0}
+.si-dt{font-size:15px;font-weight:800;color:var(--g800)}
+.si-hp{font-size:12px;color:var(--g500);margin-top:2px;display:flex;align-items:center;gap:4px}
+.si-note{font-size:11px;color:var(--g400);margin-top:3px}
+.si-st{margin-top:6px}
+.dc{font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;white-space:nowrap}
+
+/* ── Profile ── */
+.p-hd{background:linear-gradient(135deg,var(--teal),#009e8f);border-radius:14px;padding:18px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.p-av{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.38)}
+.p-nm{font-size:18px;font-weight:800}
+.p-ag{font-size:12px;opacity:.82;margin-top:2px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:calc(var(--nav) + 14px);left:50%;transform:translateX(-50%);background:var(--g800);color:#fff;padding:10px 18px;border-radius:100px;font-size:13px;font-weight:600;z-index:400;opacity:0;pointer-events:none;transition:.25s;white-space:nowrap}
+.toast.show{opacity:1}
+
+.empty{text-align:center;padding:36px 16px;color:var(--g400)}
+.ei{font-size:40px;margin-bottom:8px}
+.et{font-size:14px;font-weight:600;color:var(--g500)}
+.es{font-size:12px;margin-top:3px}
+
+/* judgment */
+.jA{background:#f0fdf4;color:#15803d}.jB{background:#eff6ff;color:#1d4ed8}.jC{background:#fefce8;color:#a16207}.jD{background:#fef2f2;color:#b91c1c}.jE{background:#fef2f2;color:#b91c1c}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr" id="hdr">
+  <div class="hdr-row">
+    <div>
+      <div class="hdr-title">🌿 健康手帳</div>
+      <div class="hdr-sub" id="hdr-sub">あなたの健康をサポート</div>
+    </div>
+    <div class="hdr-avatar" onclick="openProfile()">👤</div>
+  </div>
+</div>
+
+<!-- SCREENS -->
+
+<!-- HOME -->
+<div class="scr on" id="s-home">
+  <div id="home-hero"></div>
+  <div class="qg" id="home-qg"></div>
+  <div id="home-ncb"></div>
+  <div id="home-todo-banner"></div>
+  <div style="font-size:11px;font-weight:700;color:var(--g400);letter-spacing:.4px;margin-bottom:8px;text-transform:uppercase">最近の記録</div>
+  <div id="home-recent"></div>
+</div>
+
+<!-- TODO -->
+<div class="scr" id="s-todo">
+  <div id="todo-profile-warn"></div>
+  <div id="todo-prog-area"></div>
+  <div class="todo-legend">
+    <div class="tl-item"><div class="tl-dot prio-high"></div>優先度：高</div>
+    <div class="tl-item"><div class="tl-dot prio-mid"></div>優先度：中</div>
+    <div class="tl-item"><div class="tl-dot prio-low"></div>定期</div>
+  </div>
+  <div class="todo-filter" id="todo-filter">
+    <button class="tf-btn on" onclick="filterTodo('all',this)">すべて</button>
+    <button class="tf-btn" onclick="filterTodo('undone',this)">未完了</button>
+    <button class="tf-btn" onclick="filterTodo('done',this)">完了済</button>
+    <button class="tf-btn" onclick="filterTodo('high',this)">🔴 優先高</button>
+  </div>
+  <div id="todo-list"></div>
+</div>
+
+<!-- WEIGHT -->
+<div class="scr" id="s-weight">
+  <div id="w-hero"></div>
+  <div class="card">
+    <div class="card-t"><span class="i">➕</span>体重を記録</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">日付</label><input class="fi" type="date" id="w-date"></div>
+      <div class="fg"><label class="fl">体重 (kg)</label><input class="fi" type="number" id="w-kg" placeholder="65.0" step="0.1"></div>
+    </div>
+    <div class="fg"><label class="fl">メモ（任意）</label><input class="fi" type="text" id="w-memo" placeholder="朝食前、運動後など"></div>
+    <button class="btn btn-t" onclick="saveWeight()">💾 記録する</button>
+  </div>
+  <div class="card" id="w-chart-card" style="display:none">
+    <div class="card-t"><span class="i">📈</span>推移グラフ</div>
+    <div class="chart-wrap"><canvas id="wChart"></canvas></div>
+  </div>
+  <div class="card"><div class="card-t"><span class="i">📋</span>記録一覧</div><div id="w-list"></div></div>
+</div>
+
+<!-- CHECKUP -->
+<div class="scr" id="s-ck"><div id="ck-list"></div></div>
+
+<!-- SCHEDULE -->
+<div class="scr" id="s-sch">
+  <div class="card">
+    <div class="card-t"><span class="i">📅</span>新しい予定を追加</div>
+    <div class="fg"><label class="fl">予定日</label><input class="fi" type="date" id="s-date"></div>
+    <div class="fg"><label class="fl">病院・施設名</label><input class="fi" type="text" id="s-hosp" placeholder="○○クリニック"></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">状態</label>
+        <select class="fi" id="s-status"><option value="plan">📌 予定</option><option value="reserved">✅ 予約済</option><option value="done">☑️ 完了</option></select>
+      </div>
+      <div class="fg"><label class="fl">種類・メモ</label><input class="fi" type="text" id="s-type" placeholder="定期健診など"></div>
+    </div>
+    <button class="btn btn-t" onclick="saveSchedule()">追加する</button>
+  </div>
+  <div id="sch-list"></div>
+</div>
+
+<!-- FAB -->
+<button class="fab hide" id="fab" onclick="onFab()">＋</button>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="ni on" onclick="sw('home',this)"><span class="ic">🏠</span>ホーム</button>
+  <button class="ni" onclick="sw('todo',this)"><span class="ic">✅</span>受診TODO</button>
+  <button class="ni" onclick="sw('weight',this)"><span class="ic">⚖️</span>体重</button>
+  <button class="ni" onclick="sw('ck',this)"><span class="ic">🔬</span>健診</button>
+  <button class="ni" onclick="sw('sch',this)"><span class="ic">📅</span>予定</button>
+</nav>
+
+<!-- MODALS -->
+
+<!-- Profile -->
+<div class="mo" id="m-profile">
+  <div class="ms" onclick="e=>e.stopPropagation()">
+    <div class="ms-bar"></div>
+    <div class="p-hd">
+      <div class="p-av">👤</div>
+      <div><div class="p-nm" id="p-dn">プロフィール</div><div class="p-ag" id="p-da"></div></div>
+    </div>
+    <div class="fg"><label class="fl">お名前</label><input class="fi" type="text" id="p-name" placeholder="山田 恵"></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">生年月日</label><input class="fi" type="date" id="p-birth"></div>
+      <div class="fg"><label class="fl">性別</label>
+        <select class="fi" id="p-sex"><option value="">選択</option><option value="female">女性</option><option value="male">男性</option><option value="other">その他</option></select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">身長 (cm)※BMI計算用</label><input class="fi" type="number" id="p-h" placeholder="165"></div>
+    <button class="btn btn-t" onclick="saveProfile()">✅ 保存する</button>
+    <button class="btn btn-g" onclick="cm('m-profile')">キャンセル</button>
+  </div>
+</div>
+
+<!-- Checkup modal -->
+<div class="mo" id="m-ck">
+  <div class="ms">
+    <div class="ms-bar"></div>
+    <div class="ms-title">🔬 健診結果を記録</div>
+    <input type="hidden" id="cm-id">
+    <div class="fg"><label class="fl">受診日</label><input class="fi" type="date" id="cm-date"></div>
+    <div class="fg"><label class="fl">病院・施設名</label><input class="fi" type="text" id="cm-hosp" placeholder="○○クリニック"></div>
+    <div class="fg"><label class="fl">総合判定</label>
+      <select class="fi" id="cm-jg">
+        <option value="">選択</option><option value="A">A — 異常なし</option><option value="B">B — 軽度異常あり</option><option value="C">C — 要生活改善</option><option value="D">D — 要精密検査</option><option value="E">E — 治療中</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">所見・医師コメント</label><textarea class="fi" id="cm-find" placeholder="指摘事項をメモ"></textarea></div>
+    <div class="fg">
+      <label class="fl">📷 検査結果写真（複数可）</label>
+      <div class="pua" onclick="document.getElementById('cm-fp').click()"><div style="font-size:22px;margin-bottom:4px">📁</div>タップして写真を追加<input type="file" id="cm-fp" accept="image/*" multiple style="display:none" onchange="hPhotos(event)"></div>
+      <div class="ppg" id="ppg"></div>
+    </div>
+    <button class="btn btn-t" onclick="saveCk()">💾 保存する</button>
+    <button class="btn btn-g" onclick="cm('m-ck')">キャンセル</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ STATE ═══
+let D=JSON.parse(localStorage.getItem('hm4')||'{"profile":{},"weights":[],"checkups":[],"schedules":[],"todoChecked":{}}');
+let PP=[]; // pending photos
+let WC=null; // weight chart
+let curScr='home';
+let todoFilter='all';
+
+function save(){localStorage.setItem('hm4',JSON.stringify(D));}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function cm(id){document.getElementById(id).classList.remove('on');}
+function fmt(d){if(!d)return'';const dt=new Date(d+'T00:00:00');return dt.getFullYear()+'年'+(dt.getMonth()+1)+'月'+dt.getDate()+'日';}
+function dTo(d){const n=new Date();n.setHours(0,0,0,0);return Math.round((new Date(d+'T00:00:00')-n)/86400000);}
+function calcAge(b){if(!b)return null;const n=new Date(),bd=new Date(b);let a=n.getFullYear()-bd.getFullYear();if(n.getMonth()<bd.getMonth()||(n.getMonth()===bd.getMonth()&&n.getDate()<bd.getDate()))a--;return a;}
+function bmi(w,h){return h?(w/((h/100)**2)).toFixed(1):null;}
+function bmiL(b){b=parseFloat(b);if(b<18.5)return'低体重';if(b<25)return'標準';if(b<30)return'過体重';return'肥満';}
+
+// ═══ NAV ═══
+function sw(name,el){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
+  document.getElementById('s-'+name).classList.add('on');
+  if(el)el.classList.add('on');
+  curScr=name;
+  const fabScreens=['weight','ck','sch'];
+  document.getElementById('fab').classList.toggle('hide',!fabScreens.includes(name));
+  if(name==='home')renderHome();
+  if(name==='todo')renderTodo();
+  if(name==='weight')renderWeight();
+  if(name==='ck')renderCk();
+  if(name==='sch')renderSch();
+}
+function onFab(){
+  if(curScr==='ck')openCkModal();
+  else if(curScr==='sch')document.getElementById('s-date').focus();
+  else if(curScr==='weight')document.getElementById('w-kg').focus();
+}
+
+// ═══ PROFILE ═══
+function openProfile(){
+  const p=D.profile;
+  document.getElementById('p-name').value=p.name||'';
+  document.getElementById('p-birth').value=p.birth||'';
+  document.getElementById('p-sex').value=p.sex||'';
+  document.getElementById('p-h').value=p.height||'';
+  updateProfileDisplay();
+  document.getElementById('m-profile').classList.add('on');
+}
+function saveProfile(){
+  D.profile={name:document.getElementById('p-name').value,birth:document.getElementById('p-birth').value,sex:document.getElementById('p-sex').value,height:document.getElementById('p-h').value};
+  // Reset todo when profile changes (regenerate)
+  if(D._lastProfileAge!==calcAge(D.profile.birth)||D._lastProfileSex!==D.profile.sex){
+    D.todoChecked={};
+    D._lastProfileAge=calcAge(D.profile.birth);
+    D._lastProfileSex=D.profile.sex;
+  }
+  save();cm('m-profile');renderHome();updateHdr();renderTodo();toast('プロフィールを保存しました ✅');
+}
+function updateProfileDisplay(){
+  const p=D.profile;const a=calcAge(p.birth);
+  document.getElementById('p-dn').textContent=p.name||'プロフィール';
+  document.getElementById('p-da').textContent=[a?a+'歳':'',p.sex==='female'?'女性':p.sex==='male'?'男性':''].filter(Boolean).join(' · ');
+}
+function updateHdr(){
+  const p=D.profile;
+  document.getElementById('hdr-sub').textContent=p.name?p.name+'さんの健康記録':'あなたの健康をサポート';
+}
+
+// ═══ HOME ═══
+function renderHome(){
+  updateHdr();
+  const p=D.profile,a=calcAge(p.birth);
+  const ws=[...D.weights].sort((a,b)=>b.date.localeCompare(a.date));
+  const lw=ws[0],h=p.height;
+  const b=lw&&h?bmi(lw.weight,h):null;
+  const recs=getRecommendations(a,p.sex||'female');
+  const done=recs.filter(r=>D.todoChecked[r.id]).length;
+
+  document.getElementById('home-hero').innerHTML=`
+    <div class="hero">
+      <div class="hero-name">${p.name?p.name+'さん、こんにちは！':'こんにちは！'}</div>
+      <div class="hero-sub">今日も健康チェックを続けましょう</div>
+      <div class="hero-stats">
+        <div class="hs"><div class="hs-v">${lw?lw.weight+'<small style="font-size:11px">kg</small>':'—'}</div><div class="hs-l">最新体重</div></div>
+        <div class="hs"><div class="hs-v">${b||'—'}</div><div class="hs-l">BMI</div></div>
+        <div class="hs"><div class="hs-v">${D.weights.length}</div><div class="hs-l">記録日数</div></div>
+        ${a?`<div class="hs"><div class="hs-v">${a}</div><div class="hs-l">歳</div></div>`:''}
+      </div>
+    </div>`;
+
+  const latCk=[...D.checkups].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  document.getElementById('home-qg').innerHTML=`
+    <div class="qc hi" onclick="sw('weight',document.querySelectorAll('.ni')[2])">
+      <div class="qi">⚖️</div><div class="ql">体重を記録</div>
+      ${lw?`<div class="qv">${lw.weight} kg</div><div class="qs">${fmt(lw.date)}</div>`:'<div class="qs">まだ記録なし</div>'}
+    </div>
+    <div class="qc" onclick="sw('ck',document.querySelectorAll('.ni')[3])">
+      <div class="qi">🔬</div><div class="ql">健診結果</div>
+      ${latCk?`<div class="qv" style="font-size:14px">${latCk.judgment||'—'}判定</div><div class="qs">${fmt(latCk.date)}</div>`:'<div class="qs">まだ記録なし</div>'}
+    </div>
+    <div class="qc" onclick="sw('todo',document.querySelectorAll('.ni')[1])">
+      <div class="qi">✅</div><div class="ql">受診TODO</div>
+      ${a?`<div class="qv" style="font-size:14px">${done}/${recs.length}</div><div class="qs">完了済</div>`:'<div class="qs">プロフィールを設定</div>'}
+    </div>
+    <div class="qc" onclick="sw('sch',document.querySelectorAll('.ni')[4])">
+      <div class="qi">📅</div><div class="ql">予定管理</div>
+      <div class="qs">${D.schedules.filter(s=>s.status!=='done').length}件の予定</div>
+    </div>`;
+
+  const nxt=D.schedules.filter(s=>s.status!=='done').sort((a,b)=>a.date.localeCompare(b.date))[0];
+  document.getElementById('home-ncb').innerHTML=nxt?`
+    <div class="ncb" onclick="sw('sch',document.querySelectorAll('.ni')[4])">
+      <div class="ncb-ic">🏥</div>
+      <div class="ncb-info">
+        <div class="ncb-lbl">次回の健康診断</div>
+        <div class="ncb-dt">${fmt(nxt.date)}</div>
+        <div class="ncb-hp">${nxt.hospital||'病院未設定'}${nxt.note?' · '+nxt.note:''}</div>
+      </div>
+      <div class="ncb-d">${(()=>{const d=dTo(nxt.date);return d<0?`${Math.abs(d)}日前`:d===0?'今日！':`あと<br>${d}日`;})()}</div>
+    </div>`:'';
+
+  // TODO banner
+  if(a&&recs.length){
+    const pct=Math.round(done/recs.length*100);
+    document.getElementById('home-todo-banner').innerHTML=`
+      <div class="todo-banner" onclick="sw('todo',document.querySelectorAll('.ni')[1])">
+        <div class="todo-banner-ic">📋</div>
+        <div class="todo-banner-info">
+          <div class="todo-banner-t">${a}歳向け受診チェックリスト</div>
+          <div class="todo-banner-s">${recs.length}項目中 ${done}項目完了</div>
+          <div style="margin-top:8px;background:rgba(255,255,255,.25);border-radius:100px;height:5px;overflow:hidden">
+            <div style="height:100%;background:#fff;border-radius:100px;width:${pct}%;transition:.4s"></div>
+          </div>
+        </div>
+        <div class="todo-prog">${pct}%</div>
+      </div>`;
+  } else {
+    document.getElementById('home-todo-banner').innerHTML=`
+      <div class="ncb" style="background:linear-gradient(135deg,var(--purple),#6d28d9);box-shadow:0 3px 12px rgba(124,58,237,.22)" onclick="openProfile()">
+        <div class="ncb-ic">🤖</div>
+        <div class="ncb-info"><div class="ncb-lbl">AI受診TODO</div><div class="ncb-dt" style="font-size:14px">プロフィールを設定すると</div><div class="ncb-hp">年齢別チェックリストが作成されます</div></div>
+        <div class="ncb-d" style="font-size:12px">設定→</div>
+      </div>`;
+  }
+
+  const recW=ws.slice(0,3);
+  document.getElementById('home-recent').innerHTML=recW.length?recW.map(w=>`
+    <div class="card" style="padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:17px">⚖️</span>
+      <div style="flex:1"><div style="font-size:14px;font-weight:700">${w.weight} kg</div><div style="font-size:11px;color:var(--g400)">${fmt(w.date)}${w.memo?' · '+w.memo:''}</div></div>
+      ${h?`<span class="pl pl-t">BMI ${bmi(w.weight,h)}</span>`:''}
+    </div>`).join(''):
+    `<div class="card" style="padding:14px;color:var(--g400);font-size:13px;text-align:center">まだ記録がありません</div>`;
+}
+
+// ═══ TODO ═══
+function filterTodo(f,el){
+  todoFilter=f;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('on'));
+  if(el)el.classList.add('on');
+  renderTodoList();
+}
+
+function renderTodo(){
+  const p=D.profile,a=calcAge(p.birth);
+  if(!a||!p.sex){
+    document.getElementById('todo-profile-warn').innerHTML=`
+      <div class="card" style="text-align:center;padding:24px;margin-bottom:12px">
+        <div style="font-size:36px;margin-bottom:10px">🤖</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px">プロフィールを設定してください</div>
+        <div style="font-size:13px;color:var(--g400);margin-bottom:14px">年齢・性別を登録すると、あなたに合った受診チェックリストが自動作成されます</div>
+        <button class="btn btn-t" style="max-width:200px;margin:0 auto" onclick="openProfile()">プロフィールを設定 →</button>
+      </div>`;
+    document.getElementById('todo-prog-area').innerHTML='';
+    document.getElementById('todo-list').innerHTML='';
+    return;
+  }
+  document.getElementById('todo-profile-warn').innerHTML='';
+  const recs=getRecommendations(a,p.sex);
+  const done=recs.filter(r=>D.todoChecked[r.id]).length;
+  const pct=recs.length?Math.round(done/recs.length*100):0;
+
+  document.getElementById('todo-prog-area').innerHTML=`
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:800">${a}歳 ${p.sex==='female'?'女性':'男性'}の受診チェックリスト</div>
+          <div style="font-size:12px;color:var(--g400);margin-top:2px">${recs.length}項目中 ${done}項目完了</div>
+        </div>
+        <div style="font-size:28px;font-weight:900;color:${pct===100?'var(--teal)':'var(--g700)'}">${pct}<span style="font-size:14px;font-weight:600">%</span></div>
+      </div>
+      <div class="todo-progress-bar"><div class="todo-progress-fill" style="width:${pct}%"></div></div>
+      ${pct===100?`<div style="text-align:center;margin-top:10px;font-size:13px;color:var(--teal);font-weight:700">🎉 すべて完了！お疲れさまです</div>`:''}
+      <div style="display:flex;justify-content:flex-end;margin-top:10px">
+        <button onclick="resetTodo()" style="padding:5px 12px;border-radius:100px;border:1.5px solid var(--g200);background:#fff;font-size:11px;font-weight:700;color:var(--g400);cursor:pointer">リセット</button>
+      </div>
+    </div>`;
+
+  renderTodoList();
+}
+
+function renderTodoList(){
+  const p=D.profile,a=calcAge(p.birth);
+  if(!a)return;
+  const recs=getRecommendations(a,p.sex);
+  let filtered=recs;
+  if(todoFilter==='undone')filtered=recs.filter(r=>!D.todoChecked[r.id]);
+  else if(todoFilter==='done')filtered=recs.filter(r=>D.todoChecked[r.id]);
+  else if(todoFilter==='high')filtered=recs.filter(r=>r.priority==='high');
+
+  if(!filtered.length){
+    document.getElementById('todo-list').innerHTML='<div class="empty"><div class="ei">✅</div><div class="et">該当なし</div></div>';
+    return;
+  }
+  const prioOrder={high:0,mid:1,low:2};
+  filtered.sort((a,b)=>prioOrder[a.priority]-prioOrder[b.priority]);
+  document.getElementById('todo-list').innerHTML=filtered.map(r=>{
+    const checked=!!D.todoChecked[r.id];
+    return`<div class="todo-item${checked?' done-item':''}" id="ti-${r.id}">
+      <div class="todo-prio-col prio-${r.priority}"></div>
+      <button class="todo-check-col" onclick="toggleTodo('${r.id}')">
+        <div class="todo-cb${checked?' done':''}">${checked?'✓':''}</div>
+      </button>
+      <div class="todo-body" onclick="expandTodo('${r.id}')">
+        <div class="todo-name${checked?' done-txt':''}">${r.icon} ${r.name}${r.priority==='high'?` <span class="pl pl-r" style="font-size:9px">優先高</span>`:''}
+        </div>
+        <div class="todo-freq">📅 ${r.freq}</div>
+        <div class="todo-expand" id="te-${r.id}">
+          <div class="todo-exp-txt">${r.why}</div>
+          ${r.what?`<ul class="todo-exp-list">${r.what.map(w=>`<li>${w}</li>`).join('')}</ul>`:''}
+          ${r.tip?`<div style="margin-top:8px;padding:8px 10px;background:var(--teal-ll);border-radius:8px;font-size:11px;color:var(--teal-d);line-height:1.5">💡 ${r.tip}</div>`:''}
+          <button onclick="addToScheduleFromTodo('${r.name}')" style="margin-top:10px;padding:7px 14px;border-radius:100px;border:1.5px solid var(--teal);background:var(--teal-ll);font-size:12px;font-weight:700;color:var(--teal-d);cursor:pointer">📅 予定に追加する</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTodo(id){
+  if(D.todoChecked[id])delete D.todoChecked[id];
+  else D.todoChecked[id]=true;
+  save();renderTodo();
+}
+function expandTodo(id){
+  const el=document.getElementById('ti-'+id);
+  if(el)el.classList.toggle('open');
+}
+function resetTodo(){
+  if(!confirm('チェックをすべてリセットしますか？'))return;
+  D.todoChecked={};save();renderTodo();toast('リセットしました');
+}
+function addToScheduleFromTodo(name){
+  sw('sch',document.querySelectorAll('.ni')[4]);
+  setTimeout(()=>{document.getElementById('s-type').value=name;document.getElementById('s-date').focus();},200);
+}
+
+// ═══ RECOMMENDATIONS ENGINE ═══
+function getRecommendations(a,sex){
+  if(!a)return[];
+  const recs=[];const f=sex==='female';const m=sex==='male';
+  let id=0;
+  function add(r){recs.push({id:'r'+id++,...r});}
+
+  // 全年齢
+  add({icon:'🩺',name:'基本健康診断（血圧・血液・尿検査）',freq:'年1回',priority:'low',
+    why:'生活習慣病（高血圧・糖尿病・脂質異常症）を早期発見できる基本の検診です。',
+    what:['血圧測定','血液検査（血糖・コレステロール・肝機能）','尿検査'],
+    tip:'40歳以上は健保組合・自治体から無料クーポンが届く場合があります。'});
+  add({icon:'🦷',name:'歯科健診・クリーニング',freq:'6ヶ月に1回',priority:'low',
+    why:'歯周病は万病のもと。糖尿病・心疾患・早産との関連も報告されています。',
+    what:['虫歯・歯周病チェック','歯石除去・クリーニング']});
+
+  if(a>=20&&a<30){
+    if(f){
+      add({icon:'🌸',name:'子宮頸がん検診',freq:'2年に1回',priority:'high',
+        why:'20〜30代女性に多いがん。HPV感染が原因で、早期発見で完治できます。',
+        what:['子宮頸部細胞診','必要に応じてHPV検査'],
+        tip:'自治体の20歳無料クーポンを利用しましょう。'});
+    }
+    add({icon:'👁️',name:'視力・眼科検診',freq:'2年に1回',priority:'low',
+      why:'スマホ・PC使用が多い20代は近視・眼精疲労が進みやすい時期です。',
+      what:['視力検査','眼圧・眼底確認']});
+    add({icon:'🩸',name:'貧血検査（血液検査）',freq:'年1回',priority:f?'high':'low',
+      why:f?'月経のある女性は鉄欠乏性貧血になりやすく、疲労・頭痛の原因に。':'貧血の早期発見と生活改善に役立ちます。',
+      what:['血液検査（ヘモグロビン・フェリチン・MCV）']});
+  }
+
+  if(a>=30&&a<40){
+    add({icon:'❤️',name:'心電図検査',freq:'2〜3年に1回',priority:'mid',
+      why:'30代から不整脈・狭心症のリスクが出始めます。デスクワーク・運動不足の方は特に重要。',
+      what:['安静時12誘導心電図']});
+    add({icon:'🏃',name:'メタボ・生活習慣病検査',freq:'年1回',priority:'mid',
+      why:'30代はメタボ予備軍が急増する時期。血糖・脂質・腹囲をしっかりチェック。',
+      what:['腹囲測定','空腹時血糖・HbA1c','LDL/HDLコレステロール','中性脂肪']});
+    if(f){
+      add({icon:'🌸',name:'子宮頸がん検診',freq:'2年に1回',priority:'high',
+        why:'30代は子宮頸がんの罹患率が高い時期。継続的な検診が重要です。',
+        what:['子宮頸部細胞診','HPV検査']});
+      add({icon:'🎗️',name:'乳がん検診（視触診・超音波）',freq:'2年に1回',priority:'high',
+        why:'乳がんは30代後半から増加。早期発見で治癒率が大きく上がります。',
+        what:['乳房視触診','乳房超音波（エコー）']});
+    }
+  }
+
+  if(a>=40&&a<50){
+    add({icon:'🔴',name:'大腸がん検診（便潜血）',freq:'年1回',priority:'high',
+      why:'大腸がんは40代から急増。便潜血は自宅でできる簡単な検査です。',
+      what:['便潜血検査（2日法）','要精査の場合→大腸内視鏡'],
+      tip:'自治体の40歳無料クーポンを活用しましょう。'});
+    add({icon:'🔍',name:'胃がん検診（胃カメラorバリウム）',freq:'2年に1回',priority:'high',
+      why:'40代からピロリ菌・胃がんリスクが高まります。胃カメラの方が精度が高い。',
+      what:['胃内視鏡（胃カメラ）または胃X線','ピロリ菌検査（未受検の方）']});
+    add({icon:'🫁',name:'肺がん検診（胸部X線）',freq:'年1回',priority:'high',
+      why:'肺がんは日本人の死因第1位。早期は無症状なので検診が重要。',
+      what:['胸部X線撮影','喫煙者はCT検査（低線量）も推奨']});
+    add({icon:'👁️',name:'緑内障・眼底検査',freq:'年1回',priority:'mid',
+      why:'緑内障は40代から急増し、日本人の失明原因第1位。自覚症状なく進行します。',
+      what:['眼圧測定','眼底写真','視野検査']});
+    add({icon:'🫀',name:'動脈硬化・心血管検査',freq:'3〜5年に1回',priority:'mid',
+      why:'40代は動脈硬化が急速に進む時期。心筋梗塞・脳卒中の予防に。',
+      what:['頸動脈超音波','ABI（血管の硬さ）','心臓エコー']});
+    if(f){
+      add({icon:'🌸',name:'子宮頸がん＋体がん検診',freq:'年1〜2回',priority:'high',
+        why:'40代は子宮頸がん・体がん両方のリスクが高まります。婦人科で相談を。',
+        what:['子宮頸部細胞診','子宮体部細胞診（必要時）','経腟超音波']});
+      add({icon:'🎗️',name:'乳がん検診（マンモグラフィ）',freq:'2年に1回',priority:'high',
+        why:'40代は乳がん罹患率最大のピーク。マンモグラフィが最も有効。',
+        what:['マンモグラフィ（2方向）','必要に応じて超音波併用'],
+        tip:'自治体の無料クーポンを毎年受け取れます。'});
+      add({icon:'💊',name:'骨密度検査',freq:'2〜3年に1回',priority:'mid',
+        why:'40代後半から骨密度が低下。閉経に備えて現状を把握しておきましょう。',
+        what:['DXA法（腰椎・大腿骨）','超音波法（かかと）']});
+    }
+    if(m){
+      add({icon:'🔵',name:'前立腺がん検診（PSA）',freq:'2年に1回',priority:'mid',
+        why:'前立腺がんは40代後半から増加。PSA血液検査で簡単に確認できます。',
+        what:['PSA（前立腺特異抗原）血液検査']});
+    }
+  }
+
+  if(a>=50&&a<60){
+    add({icon:'🔴',name:'大腸内視鏡検査',freq:'5年に1回',priority:'high',
+      why:'50代は大腸ポリープ・がんリスクが高い。内視鏡でポリープを直接切除できます。',
+      what:['大腸内視鏡','発見したポリープは同時切除'],
+      tip:'ポリープの早期除去でがんを予防できます。'});
+    add({icon:'🧠',name:'脳ドック（頭部MRI）',freq:'3〜5年に1回',priority:'high',
+      why:'脳梗塞・動脈瘤は無症状で進行します。50代から一度は受けておくと安心。',
+      what:['頭部MRI/MRA','頸動脈超音波'],
+      tip:'自費検査ですが早期発見の安心感は大きいです。'});
+    add({icon:'🦴',name:'骨密度検査',freq:'2年に1回',priority:f?'high':'mid',
+      why:f?'閉経前後に骨密度が急速低下。骨粗しょう症を早期発見しましょう。':'男性も50代から骨密度が低下します。転倒・骨折リスクを知っておきましょう。',
+      what:['DXA法（腰椎・大腿骨頸部）','骨代謝マーカー検査']});
+    add({icon:'🩺',name:'人間ドック（総合）',freq:'年1回',priority:'high',
+      why:'50代は複数の疾患リスクが重なる時期。総合ドックで全身をまとめてチェック。',
+      what:['全血液検査（腫瘍マーカー含む）','胸部CT','腹部超音波','各種がん検診'],
+      tip:'健保組合の補助を確認するとお得に受けられます。'});
+    if(f){
+      add({icon:'🌡️',name:'更年期・ホルモン検査',freq:'年1〜2回',priority:'high',
+        why:'エストロゲン低下で心血管・骨・メンタルに影響。婦人科で定期フォローを。',
+        what:['女性ホルモン（FSH・LH・E2）','甲状腺ホルモン','コレステロール・骨密度']});
+    }
+    if(m){
+      add({icon:'🔵',name:'前立腺がん検診（PSA）',freq:'年1回',priority:'high',
+        why:'50代以降は前立腺がんリスクが大幅に増加。毎年のPSA検査を。',
+        what:['PSA血液検査','異常時→泌尿器科で精密検査']});
+    }
+  }
+
+  if(a>=60){
+    add({icon:'🧠',name:'認知機能検査',freq:'年1〜2回',priority:'high',
+      why:'軽度認知障害（MCI）は早期介入で進行を遅らせられます。かかりつけ医に相談を。',
+      what:['MMSE・HDS-R（認知機能テスト）','頭部MRI','必要に応じて脳血流検査'],
+      tip:'もの忘れが気になり始めたら早めに受診しましょう。'});
+    add({icon:'🦴',name:'骨密度＋フレイル評価',freq:'年1回',priority:'high',
+      why:'骨粗しょう症による骨折は寝たきりの主原因。筋力・バランスも合わせて評価を。',
+      what:['DXA骨密度測定','フレイルスクリーニング','筋肉量測定（InBody）']});
+    add({icon:'👁️',name:'眼科年次検診（白内障・黄斑変性）',freq:'年1〜2回',priority:'high',
+      why:'白内障・加齢黄斑変性・緑内障が急増。定期眼科検診で視力を守りましょう。',
+      what:['視力・眼圧測定','眼底検査','OCT（黄斑部断層撮影）']});
+    add({icon:'🫀',name:'心臓・循環器定期検査',freq:'年1回',priority:'high',
+      why:'心不全・心房細動・動脈硬化リスクが急増。循環器科での定期フォローを。',
+      what:['心電図・心エコー','頸動脈超音波','ABI・血管年齢']});
+    add({icon:'🦷',name:'口腔機能検査（オーラルフレイル）',freq:'6ヶ月に1回',priority:'mid',
+      why:'嚥下・咀嚼機能の低下は誤嚥性肺炎・栄養不足・認知症と関連します。',
+      what:['歯周病・残存歯チェック','咀嚼・嚥下機能評価（歯科・口腔外科）']});
+    add({icon:'🩺',name:'総合人間ドック',freq:'年1回',priority:'high',
+      why:'60代はあらゆるリスクが高まる時期。がん・心血管・脳・骨を総合的にチェック。',
+      what:['全血液検査（腫瘍マーカー・炎症）','腹部・心臓・頸動脈超音波','胸部CT','各種がん検診']});
+    if(m){
+      add({icon:'🔵',name:'前立腺がん検診（PSA）',freq:'年1回',priority:'high',
+        why:'60代以上の男性は前立腺がん罹患率が最も高い時期。毎年の検査を。',
+        what:['PSA血液検査','直腸診','MRI（高値時）']});
+    }
+    if(f){
+      add({icon:'💊',name:'骨粗しょう症治療・フォロー',freq:'3〜6ヶ月に1回',priority:'high',
+        why:'治療中の方は薬効確認が必要。未治療で骨密度が低い場合は治療開始を検討。',
+        what:['骨密度再測定','骨代謝マーカー','カルシウム・ビタミンD確認']});
+    }
+  }
+
+  return recs;
+}
+
+// ═══ WEIGHT ═══
+function saveWeight(){
+  const date=document.getElementById('w-date').value,kg=document.getElementById('w-kg').value,memo=document.getElementById('w-memo').value;
+  if(!date||!kg){toast('日付と体重を入力してください');return;}
+  D.weights.push({id:Date.now(),date,weight:parseFloat(kg),memo});
+  save();document.getElementById('w-kg').value='';document.getElementById('w-memo').value='';
+  renderWeight();renderHome();toast('体重を記録しました ✅');
+}
+function delWeight(id){if(!confirm('削除しますか？'))return;D.weights=D.weights.filter(w=>w.id!==id);save();renderWeight();renderHome();}
+function renderWeight(){
+  const sorted=[...D.weights].sort((a,b)=>b.date.localeCompare(a.date));
+  const h=D.profile.height,lw=sorted[0],pw=sorted[1];
+  const diff=lw&&pw?(lw.weight-pw.weight).toFixed(1):null;
+  const b=lw&&h?bmi(lw.weight,h):null;
+  document.getElementById('w-hero').innerHTML=lw?`
+    <div class="w-hero">
+      <div style="font-size:12px;opacity:.75;margin-bottom:4px">最新体重</div>
+      <div class="w-val">${lw.weight}<span class="w-unit"> kg</span></div>
+      <div style="font-size:12px;opacity:.75;margin-top:4px">${fmt(lw.date)}${lw.memo?' · '+lw.memo:''}</div>
+      ${b?`<div class="w-bmi">BMI ${b}（${bmiL(b)}）</div>`:''}
+      ${diff!==null?`<div class="w-diff">${diff>0?'▲':'▼'} ${Math.abs(diff)} kg（前回比）</div>`:''}
+    </div>`:'';
+
+  if(sorted.length>1){
+    document.getElementById('w-chart-card').style.display='block';
+    const cd=[...D.weights].sort((a,b)=>a.date.localeCompare(b.date));
+    if(WC)WC.destroy();
+    WC=new Chart(document.getElementById('wChart').getContext('2d'),{
+      type:'line',
+      data:{labels:cd.map(w=>fmt(w.date).replace('年','/').replace('月','/').replace('日','')),
+        datasets:[{data:cd.map(w=>w.weight),borderColor:'#00b5a3',backgroundColor:'rgba(0,181,163,.07)',tension:.35,pointRadius:4,pointBackgroundColor:'#00b5a3',fill:true}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{callback:v=>v+'kg'},grid:{color:'#f1f5f9'}},x:{grid:{display:false},ticks:{maxTicksLimit:6}}}}
+    });
+  } else document.getElementById('w-chart-card').style.display='none';
+
+  const listEl=document.getElementById('w-list');
+  if(!sorted.length){listEl.innerHTML='<div class="empty"><div class="ei">⚖️</div><div class="et">まだ記録がありません</div></div>';return;}
+  listEl.innerHTML=sorted.map((w,i)=>{
+    const p=sorted[i+1],d=p?(w.weight-p.weight).toFixed(1):null;
+    const b2=h?bmi(w.weight,h):null;
+    return`<div class="wli">
+      <div class="wli-dt">${fmt(w.date)}</div>
+      <div><div class="wli-w">${w.weight} kg</div>${b2?`<div class="wli-b">BMI ${b2}</div>`:''}</div>
+      ${w.memo?`<div style="flex:1;font-size:11px;color:var(--g400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${w.memo}</div>`:'<div style="flex:1"></div>'}
+      ${d!==null?`<span class="wli-diff ${parseFloat(d)>0?'d-up':'d-dn'}">${parseFloat(d)>0?'+':''}${d}</span>`:''}
+      <button class="wli-del" onclick="delWeight(${w.id})">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+// ═══ CHECKUP ═══
+function openCkModal(id){
+  PP=[];document.getElementById('cm-id').value=id||'';
+  document.getElementById('cm-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('cm-hosp').value='';document.getElementById('cm-jg').value='';
+  document.getElementById('cm-find').value='';document.getElementById('ppg').innerHTML='';
+  if(id){const ck=D.checkups.find(c=>c.id==id);if(ck){document.getElementById('cm-date').value=ck.date;document.getElementById('cm-hosp').value=ck.hospital||'';document.getElementById('cm-jg').value=ck.judgment||'';document.getElementById('cm-find').value=ck.finding||'';PP=ck.photos?[...ck.photos]:[];renderPP();}}
+  document.getElementById('m-ck').classList.add('on');
+}
+function hPhotos(e){Array.from(e.target.files).forEach(f=>{const r=new FileReader();r.onload=ev=>{PP.push({dataUrl:ev.target.result,label:f.name.replace(/\.[^.]+$/,'')});renderPP();};r.readAsDataURL(f);});e.target.value='';}
+function renderPP(){document.getElementById('ppg').innerHTML=PP.map((p,i)=>`<div class="ppi"><img src="${p.dataUrl}"><button class="ppi-rm" onclick="PP.splice(${i},1);renderPP()">✕</button><input class="ppi-l" value="${p.label}" onchange="PP[${i}].label=this.value" placeholder="項目名"></div>`).join('');}
+function saveCk(){
+  const date=document.getElementById('cm-date').value;if(!date){toast('受診日を入力してください');return;}
+  const id=document.getElementById('cm-id').value;
+  const obj={id:id||Date.now(),date,hospital:document.getElementById('cm-hosp').value,judgment:document.getElementById('cm-jg').value,finding:document.getElementById('cm-find').value,photos:[...PP]};
+  if(id)D.checkups=D.checkups.map(c=>c.id==id?obj:c);else D.checkups.push(obj);
+  save();cm('m-ck');renderCk();renderHome();toast('健診結果を保存しました ✅');
+}
+function delCk(id){if(!confirm('削除しますか？'))return;D.checkups=D.checkups.filter(c=>c.id!==id);save();renderCk();renderHome();}
+function renderCk(){
+  const el=document.getElementById('ck-list');
+  const sorted=[...D.checkups].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!sorted.length){el.innerHTML='<div class="empty"><div class="ei">🔬</div><div class="et">健診結果を追加しましょう</div><div class="es">右下の＋ボタンから追加</div></div>';return;}
+  const jC={A:'jA',B:'jB',C:'jC',D:'jD',E:'jE'};
+  el.innerHTML=sorted.map(ck=>`
+    <div class="ck-card" id="cc-${ck.id}">
+      <div class="ck-hd" onclick="document.getElementById('cc-${ck.id}').classList.toggle('open')">
+        <div><div class="ck-dt">${fmt(ck.date)}</div><div class="ck-hp">🏥 ${ck.hospital||'病院未設定'}</div></div>
+        ${ck.judgment?`<span class="pl ${jC[ck.judgment]}" style="margin-left:auto;margin-right:8px">${ck.judgment}判定</span>`:'<div style="flex:1"></div>'}
+        <div class="ck-ch">▼</div>
+      </div>
+      <div class="ck-bd">
+        ${ck.finding?`<div class="ck-st">所見・コメント</div><div class="ck-txt">${ck.finding}</div>`:''}
+        ${ck.photos&&ck.photos.length?`<div class="ck-st">📷 検査結果写真（${ck.photos.length}枚）</div><div class="pg">${ck.photos.map(p=>`<div class="pt" onclick="window.open().document.write('<img src=\\'${p.dataUrl}\\' style=\\'max-width:100%\\'>');void 0"><img src="${p.dataUrl}"><div class="pt-l">${p.label}</div></div>`).join('')}</div>`:''}
+        <div class="ck-acts">
+          <button class="btn btn-t btn-sm" onclick="openCkModal(${ck.id})">✏️ 編集</button>
+          <button class="btn btn-del btn-sm" onclick="delCk(${ck.id})">削除</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ═══ SCHEDULE ═══
+function saveSchedule(){
+  const date=document.getElementById('s-date').value;if(!date){toast('予定日を入力してください');return;}
+  D.schedules.push({id:Date.now(),date,hospital:document.getElementById('s-hosp').value,status:document.getElementById('s-status').value,note:document.getElementById('s-type').value});
+  save();document.getElementById('s-hosp').value='';document.getElementById('s-type').value='';document.getElementById('s-status').value='plan';
+  renderSch();renderHome();toast('予定を追加しました ✅');
+}
+function delSch(id){if(!confirm('削除しますか？'))return;D.schedules=D.schedules.filter(s=>s.id!==id);save();renderSch();renderHome();}
+function cycleSt(id){const s=D.schedules.find(s=>s.id===id);if(!s)return;const c=['plan','reserved','done'];s.status=c[(c.indexOf(s.status)+1)%3];save();renderSch();renderHome();}
+function renderSch(){
+  const el=document.getElementById('sch-list');
+  const sorted=[...D.schedules].sort((a,b)=>a.date.localeCompare(b.date));
+  if(!sorted.length){el.innerHTML='<div class="empty"><div class="ei">📅</div><div class="et">予定を追加しましょう</div></div>';return;}
+  const sL={plan:'📌 予定',reserved:'✅ 予約済',done:'☑️ 完了'};
+  const sC={plan:'var(--teal)',reserved:'var(--blue)',done:'var(--g300)'};
+  const sBg={plan:'var(--teal-l)',reserved:'var(--blue-l)',done:'var(--g100)'};
+  const sTx={plan:'var(--teal-d)',reserved:'var(--blue)',done:'var(--g500)'};
+  el.innerHTML=sorted.map(s=>{
+    const d=dTo(s.date);
+    let dc='var(--g100)',dt='var(--g400)',dl='完了';
+    if(s.status!=='done'){
+      if(d<0){dc='var(--g100)';dt='var(--g400)';dl=`${Math.abs(d)}日前`;}
+      else if(d===0){dc='#fef2f2';dt='var(--red)';dl='今日！';}
+      else if(d<7){dc='var(--red-l)';dt='var(--red)';dl=`あと${d}日`;}
+      else if(d<30){dc='var(--yellow-l)';dt='var(--yellow)';dl=`あと${d}日`;}
+      else{dc='var(--green-l)';dt='var(--green)';dl=`あと${d}日`;}
+    }
+    return`<div class="si">
+      <div class="si-dot" style="background:${sC[s.status]}"></div>
+      <div class="si-info">
+        <div class="si-dt">${fmt(s.date)}</div>
+        ${s.hospital?`<div class="si-hp">🏥 ${s.hospital}</div>`:''}
+        ${s.note?`<div class="si-note">📝 ${s.note}</div>`:''}
+        <div class="si-st"><span class="pl" style="background:${sBg[s.status]};color:${sTx[s.status]};cursor:pointer" onclick="cycleSt(${s.id})">${sL[s.status]}</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <span class="dc" style="background:${dc};color:${dt}">${dl}</span>
+        <button class="wli-del" onclick="delSch(${s.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ INIT ═══
+document.getElementById('w-date').value=new Date().toISOString().split('T')[0];
+document.getElementById('s-date').value=new Date().toISOString().split('T')[0];
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
+renderHome();
+</script>
+</body>
+</html>
