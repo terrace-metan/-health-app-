@@ -23,7 +23,8 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic UI',sans-serif;
+  font-family:'TsukuARdGothic-Regular','筑紫A丸ゴシック','TsukuARdGothic','Tsukushi A Round Gothic',-apple-system,BlinkMacSystemFont,'Hiragino Maru Gothic ProN','Hiragino Sans',sans-serif;
+  font-size:18px;line-height:1.7;
   background:#f0f4f8;color:var(--g700);max-width:480px;margin:0 auto;
   min-height:100vh;padding-bottom:calc(var(--nav) + 8px);
 }
@@ -37,7 +38,7 @@ body{
 .hdr-row{display:flex;align-items:center;justify-content:space-between}
 .hdr-title{color:#fff;font-size:17px;font-weight:800;letter-spacing:.2px}
 .hdr-sub{color:rgba(255,255,255,.78);font-size:12px;margin-top:2px}
-.hdr-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;border:2px solid rgba(255,255,255,.38);flex-shrink:0}
+.hdr-avatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden}
 
 /* ── Bottom Nav ── */
 .bnav{
@@ -49,7 +50,8 @@ body{
 }
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--g400);font-size:10px;font-weight:600;padding:6px 2px}
 .ni.on{color:var(--teal)}
-.ni .ic{font-size:21px;line-height:1}
+.ni .ic{font-size:21px;line-height:1;display:flex;align-items:center;justify-content:center}
+.ni .ic svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
 /* ── FAB ── */
 .fab{position:fixed;bottom:calc(var(--nav) + 14px);right:18px;width:50px;height:50px;border-radius:50%;background:var(--teal);color:#fff;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(0,181,163,.38);display:flex;align-items:center;justify-content:center;z-index:201;transition:.18s}
@@ -63,23 +65,23 @@ body{
 
 /* ── Card ── */
 .card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:16px;margin-bottom:12px}
-.card-t{font-size:13px;font-weight:700;color:var(--g700);display:flex;align-items:center;gap:6px;margin-bottom:12px}
-.card-t .i{font-size:16px}
+.card-t{font-size:17px;font-weight:700;color:var(--g700);display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.card-t .i{font-size:18px}
 
 /* ── Form ── */
 .fg{margin-bottom:12px}
-.fl{font-size:11px;font-weight:700;color:var(--g400);margin-bottom:5px;display:block;letter-spacing:.3px;text-transform:uppercase}
-.fi{width:100%;padding:12px 13px;border-radius:10px;border:1.5px solid var(--g200);font-size:15px;color:var(--g900);background:#fff;font-family:inherit;transition:.18s}
+.fl{font-size:13px;font-weight:700;color:var(--g400);margin-bottom:5px;display:block;letter-spacing:.3px;text-transform:uppercase}
+.fi{width:100%;padding:12px 13px;border-radius:10px;border:1.5px solid var(--g200);font-size:17px;color:var(--g900);background:#fff;font-family:inherit;transition:.18s}
 .fi:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,181,163,.1)}
 textarea.fi{resize:vertical;min-height:80px}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:.15s;font-family:inherit;width:100%;margin-bottom:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:13px 18px;border-radius:10px;border:none;cursor:pointer;font-size:16px;font-weight:700;transition:.15s;font-family:inherit;width:100%;margin-bottom:8px}
 .btn-t{background:var(--teal);color:#fff;box-shadow:0 2px 8px rgba(0,181,163,.28)}
 .btn-t:active{background:var(--teal-d)}
 .btn-g{background:var(--g100);color:var(--g600)}
-.btn-sm{padding:7px 13px;font-size:12px;width:auto;margin-bottom:0}
+.btn-sm{padding:8px 14px;font-size:14px;width:auto;margin-bottom:0}
 .btn-del{background:var(--red-l);color:var(--red);border:1.5px solid #fecaca}
 
 /* ── Modal ── */
@@ -88,10 +90,10 @@ textarea.fi{resize:vertical;min-height:80px}
 .ms{background:#fff;border-radius:22px 22px 0 0;padding:20px 18px 28px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;animation:su .22s ease}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .ms-bar{width:34px;height:4px;background:var(--g200);border-radius:100px;margin:0 auto 18px}
-.ms-title{font-size:16px;font-weight:800;color:var(--g900);margin-bottom:18px}
+.ms-title{font-size:19px;font-weight:800;color:var(--g900);margin-bottom:18px}
 
 /* ── Pill ── */
-.pl{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;white-space:nowrap}
+.pl{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:13px;font-weight:700;white-space:nowrap}
 .pl-t{background:var(--teal-l);color:var(--teal-d)}
 .pl-b{background:var(--blue-l);color:var(--blue)}
 .pl-r{background:var(--red-l);color:var(--red)}
@@ -101,36 +103,36 @@ textarea.fi{resize:vertical;min-height:80px}
 
 /* ── HOME ── */
 .hero{background:linear-gradient(135deg,#009e8f,#00b5a3 55%,#00a5c4 100%);border-radius:var(--r2);padding:18px;color:#fff;margin-bottom:12px;box-shadow:0 5px 20px rgba(0,181,163,.22)}
-.hero-name{font-size:19px;font-weight:800;margin-bottom:3px}
-.hero-sub{font-size:12px;opacity:.82}
+.hero-name{font-size:22px;font-weight:800;margin-bottom:3px}
+.hero-sub{font-size:15px;opacity:.82}
 .hero-stats{display:flex;gap:10px;margin-top:14px}
 .hs{flex:1;background:rgba(255,255,255,.18);border-radius:10px;padding:10px 8px;text-align:center}
-.hs-v{font-size:20px;font-weight:800;line-height:1}
-.hs-l{font-size:9px;opacity:.78;margin-top:2px}
+.hs-v{font-size:22px;font-weight:800;line-height:1}
+.hs-l{font-size:12px;opacity:.78;margin-top:2px}
 .qg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .qc{background:#fff;border-radius:var(--r);padding:14px;box-shadow:var(--sh);cursor:pointer;display:flex;flex-direction:column;gap:7px;border:1.5px solid transparent;transition:.15s}
 .qc:active{transform:scale(.97)}
 .qc.hi{border-color:var(--teal);background:var(--teal-ll)}
 .qc .qi{font-size:24px}
-.qc .ql{font-size:12px;font-weight:700;color:var(--g600)}
-.qc .qv{font-size:16px;font-weight:800;color:var(--teal-d)}
-.qc .qs{font-size:11px;color:var(--g400)}
+.qc .ql{font-size:20px;font-weight:700;color:var(--g600)}
+.qc .qv{font-size:24px;font-weight:800;color:var(--teal-d)}
+.qc .qs{font-size:16px;color:var(--g400)}
 
 .ncb{background:linear-gradient(135deg,var(--blue),#1d4ed8);border-radius:var(--r);padding:14px 16px;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 3px 12px rgba(37,99,235,.22);cursor:pointer}
 .ncb-ic{font-size:28px}
 .ncb-info{flex:1}
-.ncb-lbl{font-size:10px;opacity:.78;font-weight:600;margin-bottom:2px}
-.ncb-dt{font-size:16px;font-weight:800}
-.ncb-hp{font-size:12px;opacity:.8;margin-top:1px}
-.ncb-d{background:rgba(255,255,255,.18);border-radius:8px;padding:7px 11px;text-align:center;font-size:12px;font-weight:700;flex-shrink:0;white-space:nowrap;min-width:56px}
+.ncb-lbl{font-size:13px;opacity:.78;font-weight:600;margin-bottom:2px}
+.ncb-dt{font-size:19px;font-weight:800}
+.ncb-hp{font-size:14px;opacity:.8;margin-top:1px}
+.ncb-d{background:rgba(255,255,255,.18);border-radius:8px;padding:7px 11px;text-align:center;font-size:14px;font-weight:700;flex-shrink:0;white-space:nowrap;min-width:56px}
 
 /* ── TODO ── */
 .todo-banner{background:linear-gradient(135deg,var(--purple),#6d28d9);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:0 3px 12px rgba(124,58,237,.22)}
 .todo-banner-ic{font-size:26px}
 .todo-banner-info{flex:1}
-.todo-banner-t{font-size:15px;font-weight:800}
-.todo-banner-s{font-size:12px;opacity:.8;margin-top:2px}
-.todo-prog{background:rgba(255,255,255,.18);border-radius:8px;padding:6px 12px;text-align:center;font-size:13px;font-weight:800;flex-shrink:0;min-width:54px}
+.todo-banner-t{font-size:18px;font-weight:800}
+.todo-banner-s{font-size:14px;opacity:.8;margin-top:2px}
+.todo-prog{background:rgba(255,255,255,.18);border-radius:8px;padding:6px 12px;text-align:center;font-size:16px;font-weight:800;flex-shrink:0;min-width:54px}
 
 .todo-item{
   background:#fff;border-radius:var(--r);box-shadow:var(--sh);
@@ -151,14 +153,14 @@ textarea.fi{resize:vertical;min-height:80px}
 }
 .todo-cb.done{background:var(--teal);border-color:var(--teal);color:#fff}
 .todo-body{flex:1;padding:13px 12px 13px 0;min-width:0;cursor:pointer}
-.todo-name{font-size:14px;font-weight:700;color:var(--g800);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.todo-name{font-size:17px;font-weight:700;color:var(--g800);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .todo-name.done-txt{color:var(--g400);text-decoration:line-through}
-.todo-freq{font-size:11px;color:var(--g400);margin-top:3px}
+.todo-freq{font-size:14px;color:var(--g400);margin-top:3px}
 .todo-expand{display:none;margin-top:10px;border-top:1px solid var(--g100);padding-top:10px}
 .todo-item.open .todo-expand{display:block}
-.todo-exp-txt{font-size:12px;color:var(--g600);line-height:1.65}
+.todo-exp-txt{font-size:15px;color:var(--g600);line-height:1.65}
 .todo-exp-list{padding-left:14px;margin-top:6px}
-.todo-exp-list li{font-size:12px;color:var(--g500);line-height:1.6}
+.todo-exp-list li{font-size:15px;color:var(--g500);line-height:1.6}
 .todo-prio-col{width:5px;flex-shrink:0}
 
 .prio-high{background:var(--red)}
@@ -166,10 +168,10 @@ textarea.fi{resize:vertical;min-height:80px}
 .prio-low{background:var(--teal)}
 
 .todo-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.tf-btn{padding:6px 14px;border-radius:100px;border:1.5px solid var(--g200);background:#fff;font-size:12px;font-weight:700;color:var(--g500);cursor:pointer;transition:.15s}
+.tf-btn{padding:7px 16px;border-radius:100px;border:1.5px solid var(--g200);background:#fff;font-size:14px;font-weight:700;color:var(--g500);cursor:pointer;transition:.15s}
 .tf-btn.on{border-color:var(--teal);background:var(--teal-l);color:var(--teal-d)}
 
-.todo-legend{display:flex;gap:12px;margin-bottom:14px;font-size:11px;color:var(--g400);flex-wrap:wrap}
+.todo-legend{display:flex;gap:12px;margin-bottom:14px;font-size:13px;color:var(--g400);flex-wrap:wrap}
 .tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .tl-item{display:flex;align-items:center;gap:4px}
 
@@ -183,16 +185,16 @@ textarea.fi{resize:vertical;min-height:80px}
 .w-hero{background:linear-gradient(135deg,#009e8f,#00b5a3);border-radius:var(--r2);padding:18px;color:#fff;margin-bottom:12px;box-shadow:0 5px 18px rgba(0,181,163,.2)}
 .w-val{font-size:44px;font-weight:900;line-height:1}
 .w-unit{font-size:16px;opacity:.8}
-.w-bmi{font-size:13px;background:rgba(255,255,255,.18);border-radius:8px;padding:5px 11px;margin-top:10px;display:inline-block}
-.w-diff{font-size:12px;opacity:.82;margin-top:8px}
+.w-bmi{font-size:15px;background:rgba(255,255,255,.18);border-radius:8px;padding:5px 11px;margin-top:10px;display:inline-block}
+.w-diff{font-size:14px;opacity:.82;margin-top:8px}
 .chart-wrap{height:175px;position:relative;margin-top:4px}
 
 .wli{display:flex;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid var(--g100)}
 .wli:last-child{border-bottom:none}
-.wli-dt{font-size:12px;color:var(--g400);min-width:84px}
-.wli-w{font-size:17px;font-weight:800;color:var(--g800)}
-.wli-b{font-size:11px;color:var(--g400)}
-.wli-diff{margin-left:auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px}
+.wli-dt{font-size:14px;color:var(--g400);min-width:84px}
+.wli-w{font-size:19px;font-weight:800;color:var(--g800)}
+.wli-b{font-size:13px;color:var(--g400)}
+.wli-diff{margin-left:auto;font-size:13px;font-weight:700;padding:2px 8px;border-radius:100px}
 .d-up{background:var(--orange-l);color:var(--orange)}
 .d-dn{background:var(--green-l);color:var(--green)}
 .wli-del{background:none;border:none;cursor:pointer;font-size:15px;color:var(--g300);padding:4px}
@@ -200,14 +202,14 @@ textarea.fi{resize:vertical;min-height:80px}
 /* ── Checkup ── */
 .ck-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden}
 .ck-hd{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer}
-.ck-dt{font-size:13px;font-weight:700;color:var(--g800)}
-.ck-hp{font-size:11px;color:var(--g400);margin-top:2px}
-.ck-ch{margin-left:auto;color:var(--g300);font-size:13px;transition:.2s}
+.ck-dt{font-size:15px;font-weight:700;color:var(--g800)}
+.ck-hp{font-size:13px;color:var(--g400);margin-top:2px}
+.ck-ch{margin-left:auto;color:var(--g300);font-size:14px;transition:.2s}
 .ck-card.open .ck-ch{transform:rotate(180deg)}
 .ck-bd{display:none;padding:0 14px 14px;border-top:1px solid var(--g100)}
 .ck-card.open .ck-bd{display:block}
-.ck-st{font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 6px}
-.ck-txt{font-size:13px;color:var(--g600);line-height:1.7;white-space:pre-wrap}
+.ck-st{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 6px}
+.ck-txt{font-size:14px;color:var(--g600);line-height:1.7;white-space:pre-wrap}
 .pg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .pt{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;cursor:pointer;background:var(--g100)}
 .pt img{width:100%;height:100%;object-fit:cover}
@@ -226,11 +228,11 @@ textarea.fi{resize:vertical;min-height:80px}
 .si{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:11px}
 .si-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .si-info{flex:1;min-width:0}
-.si-dt{font-size:15px;font-weight:800;color:var(--g800)}
-.si-hp{font-size:12px;color:var(--g500);margin-top:2px;display:flex;align-items:center;gap:4px}
-.si-note{font-size:11px;color:var(--g400);margin-top:3px}
+.si-dt{font-size:16px;font-weight:800;color:var(--g800)}
+.si-hp{font-size:13px;color:var(--g500);margin-top:2px;display:flex;align-items:center;gap:4px}
+.si-note{font-size:12px;color:var(--g400);margin-top:3px}
 .si-st{margin-top:6px}
-.dc{font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;white-space:nowrap}
+.dc{font-size:12px;font-weight:700;padding:3px 9px;border-radius:100px;white-space:nowrap}
 
 /* ── Profile ── */
 .p-hd{background:linear-gradient(135deg,var(--teal),#009e8f);border-radius:14px;padding:18px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:14px}
@@ -248,7 +250,7 @@ textarea.fi{resize:vertical;min-height:80px}
 .es{font-size:12px;margin-top:3px}
 
 /* judgment */
-.jA{background:#f0fdf4;color:#15803d}.jB{background:#eff6ff;color:#1d4ed8}.jC{background:#fefce8;color:#a16207}.jD{background:#fef2f2;color:#b91c1c}.jE{background:#fef2f2;color:#b91c1c}
+.jNormal{background:#eff6ff;color:#1d4ed8}.jWatch{background:#fefce8;color:#a16207}.jRecheck{background:#fff7ed;color:#c2410c}
 </style>
 </head>
 <body>
@@ -257,10 +259,16 @@ textarea.fi{resize:vertical;min-height:80px}
 <div class="hdr" id="hdr">
   <div class="hdr-row">
     <div>
-      <div class="hdr-title">🌿 健タスク</div>
+      <div class="hdr-title">健タスク</div>
       <div class="hdr-sub" id="hdr-sub">あなたの健康をサポート</div>
     </div>
-    <div class="hdr-avatar" onclick="openProfile()">👤</div>
+    <div class="hdr-avatar" onclick="openProfile()"><svg width="40" height="40" viewBox="215 50 250 250" xmlns="http://www.w3.org/2000/svg">
+  <rect x="215" y="50" width="250" height="250" rx="58" fill="#0D9E6A"/>
+  <defs><clipPath id="fc"><rect x="215" y="50" width="250" height="250" rx="58"/></clipPath></defs>
+  <g clip-path="url(#fc)"><circle cx="340" cy="340" r="130" fill="#0B8A5C"/></g>
+  <path d="M340 228 C340 228 278 188 278 150 C278 126 296 112 314 116 C322 118 330 126 340 142 C350 126 358 118 366 116 C384 112 402 126 402 150 C402 188 340 228 340 228Z" fill="white"/>
+  <polyline points="248,208 272,208 287,178 302,236 315,196 330,208 362,208 384,208" fill="none" stroke="#80DEEA" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
   </div>
 </div>
 
@@ -350,11 +358,11 @@ textarea.fi{resize:vertical;min-height:80px}
 
 <!-- BOTTOM NAV -->
 <nav class="bnav">
-  <button class="ni on" onclick="sw('home',this)"><span class="ic">🏠</span>ホーム</button>
-  <button class="ni" onclick="sw('todo',this)"><span class="ic">✅</span>受診TODO</button>
-  <button class="ni" onclick="sw('weight',this)"><span class="ic">⚖️</span>体重</button>
-  <button class="ni" onclick="sw('ck',this)"><span class="ic">🔬</span>健診</button>
-  <button class="ni" onclick="sw('sch',this)"><span class="ic">📅</span>予定</button>
+  <button class="ni on" onclick="sw('home',this)"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></span>ホーム</button>
+  <button class="ni" onclick="sw('todo',this)"><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/><path d="M7 7l0 0"/></svg></span>受診TODO</button>
+  <button class="ni" onclick="sw('weight',this)"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18A9 9 0 0012 3z"/><path d="M12 8v4l3 2"/><path d="M6.5 6.5l1 1M17.5 6.5l-1 1"/></svg></span>体重</button>
+  <button class="ni" onclick="sw('ck',this)"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0110 0v3"/><path d="M9 10v11M15 10v11"/><path d="M3 14h18"/><path d="M12 6v0" stroke-width="2"/></svg></span>健診</button>
+  <button class="ni" onclick="sw('sch',this)"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg></span>予定</button>
 </nav>
 
 <!-- MODALS -->
@@ -384,13 +392,13 @@ textarea.fi{resize:vertical;min-height:80px}
 <div class="mo" id="m-ck">
   <div class="ms">
     <div class="ms-bar"></div>
-    <div class="ms-title">🔬 健診結果を記録</div>
+    <div class="ms-title" style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0110 0v3"/><path d="M9 10v11M15 10v11"/><path d="M3 14h18"/></svg> 健診結果を記録</div>
     <input type="hidden" id="cm-id">
     <div class="fg"><label class="fl">受診日</label><input class="fi" type="date" id="cm-date"></div>
     <div class="fg"><label class="fl">病院・施設名</label><input class="fi" type="text" id="cm-hosp" placeholder="○○クリニック"></div>
     <div class="fg"><label class="fl">総合判定</label>
       <select class="fi" id="cm-jg">
-        <option value="">選択</option><option value="A">A — 異常なし</option><option value="B">B — 軽度異常あり</option><option value="C">C — 要生活改善</option><option value="D">D — 要精密検査</option><option value="E">E — 治療中</option>
+        <option value="">選択</option><option value="normal">🔵 異常なし</option><option value="watch">🟡 経過観察</option><option value="recheck">🟠 再検査</option>
       </select>
     </div>
     <div class="fg"><label class="fl">所見・医師コメント</label><textarea class="fi" id="cm-find" placeholder="指摘事項をメモ"></textarea></div>
@@ -504,8 +512,8 @@ function renderHome(){
       ${lw?`<div class="qv">${lw.weight} kg</div><div class="qs">${fmt(lw.date)}</div>`:'<div class="qs">まだ記録なし</div>'}
     </div>
     <div class="qc" onclick="sw('ck',document.querySelectorAll('.ni')[3])">
-      <div class="qi">🔬</div><div class="ql">健診結果</div>
-      ${latCk?`<div class="qv" style="font-size:14px">${latCk.judgment||'—'}判定</div><div class="qs">${fmt(latCk.date)}</div>`:'<div class="qs">まだ記録なし</div>'}
+      <div class="qi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0110 0v3"/><path d="M9 10v11M15 10v11M3 14h18"/></svg></div><div class="ql">健診結果</div>
+      ${latCk?`<div class="qv" style="font-size:14px">${{normal:'🔵 異常なし',watch:'🟡 経過観察',recheck:'🟠 再検査'}[latCk.judgment]||latCk.judgment||'—'}</div><div class="qs">${fmt(latCk.date)}</div>`:'<div class="qs">まだ記録なし</div>'}
     </div>
     <div class="qc" onclick="sw('todo',document.querySelectorAll('.ni')[1])">
       <div class="qi">✅</div><div class="ql">受診TODO</div>
@@ -931,13 +939,14 @@ function delCk(id){if(!confirm('削除しますか？'))return;D.checkups=D.chec
 function renderCk(){
   const el=document.getElementById('ck-list');
   const sorted=[...D.checkups].sort((a,b)=>b.date.localeCompare(a.date));
-  if(!sorted.length){el.innerHTML='<div class="empty"><div class="ei">🔬</div><div class="et">健診結果を追加しましょう</div><div class="es">右下の＋ボタンから追加</div></div>';return;}
-  const jC={A:'jA',B:'jB',C:'jC',D:'jD',E:'jE'};
+  if(!sorted.length){el.innerHTML='<div class="empty"><div class="ei"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0110 0v3"/><path d="M9 10v11M15 10v11M3 14h18"/></svg></div><div class="et">健診結果を追加しましょう</div><div class="es">右下の＋ボタンから追加</div></div>';return;}
+  const jC={normal:'jNormal',watch:'jWatch',recheck:'jRecheck'};
+  const jL={normal:'🔵 異常なし',watch:'🟡 経過観察',recheck:'🟠 再検査'};
   el.innerHTML=sorted.map(ck=>`
     <div class="ck-card" id="cc-${ck.id}">
       <div class="ck-hd" onclick="document.getElementById('cc-${ck.id}').classList.toggle('open')">
         <div><div class="ck-dt">${fmt(ck.date)}</div><div class="ck-hp">🏥 ${ck.hospital||'病院未設定'}</div></div>
-        ${ck.judgment?`<span class="pl ${jC[ck.judgment]}" style="margin-left:auto;margin-right:8px">${ck.judgment}判定</span>`:'<div style="flex:1"></div>'}
+        ${ck.judgment?`<span class="pl ${jC[ck.judgment]}" style="margin-left:auto;margin-right:8px">${jL[ck.judgment]||ck.judgment}</span>`:'<div style="flex:1"></div>'}
         <div class="ck-ch">▼</div>
       </div>
       <div class="ck-bd">
