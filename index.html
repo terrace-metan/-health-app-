@@ -87,7 +87,9 @@ textarea.fi{resize:vertical;min-height:80px}
 /* ── Modal ── */
 .mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:500;align-items:flex-end;justify-content:center;touch-action:none}
 .mo.on{display:flex;animation:fi .15s}
-.ms{background:#fff;border-radius:22px 22px 0 0;padding:20px 18px calc(40px + env(safe-area-inset-bottom,20px));width:100%;max-width:480px;max-height:96vh;height:auto;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;animation:su .22s ease;touch-action:pan-y;}
+.ms{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:96vh;display:flex;flex-direction:column;animation:su .22s ease;}
+.ms-scroll{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:20px 18px 8px;touch-action:pan-y;}
+.ms-footer{padding:12px 18px calc(12px + env(safe-area-inset-bottom,16px));border-top:1px solid var(--g100);background:#fff;flex-shrink:0;}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .ms-bar{width:34px;height:4px;background:var(--g200);border-radius:100px;margin:0 auto 18px}
 .ms-title{font-size:19px;font-weight:800;color:var(--g900);margin-bottom:18px}
@@ -391,24 +393,28 @@ textarea.fi{resize:vertical;min-height:80px}
 <!-- Checkup modal -->
 <div class="mo" id="m-ck">
   <div class="ms" onclick="event.stopPropagation()">
-    <div class="ms-bar"></div>
-    <div class="ms-title" style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0110 0v3"/><path d="M9 10v11M15 10v11"/><path d="M3 14h18"/></svg> 健診結果を記録</div>
-    <input type="hidden" id="cm-id">
-    <div class="fg"><label class="fl">受診日</label><input class="fi" type="date" id="cm-date"></div>
-    <div class="fg"><label class="fl">病院・施設名</label><input class="fi" type="text" id="cm-hosp" placeholder="○○クリニック"></div>
-    <div class="fg"><label class="fl">総合判定</label>
-      <select class="fi" id="cm-jg">
-        <option value="">選択</option><option value="normal">🔵 異常なし</option><option value="watch">🟡 経過観察</option><option value="recheck">🟠 再検査</option>
-      </select>
+    <div class="ms-scroll">
+      <div class="ms-bar"></div>
+      <div class="ms-title" style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0110 0v3"/><path d="M9 10v11M15 10v11"/><path d="M3 14h18"/></svg> 健診結果を記録</div>
+      <input type="hidden" id="cm-id">
+      <div class="fg"><label class="fl">受診日</label><input class="fi" type="date" id="cm-date"></div>
+      <div class="fg"><label class="fl">病院・施設名</label><input class="fi" type="text" id="cm-hosp" placeholder="○○クリニック"></div>
+      <div class="fg"><label class="fl">総合判定</label>
+        <select class="fi" id="cm-jg">
+          <option value="">選択</option><option value="normal">🔵 異常なし</option><option value="watch">🟡 経過観察</option><option value="recheck">🟠 再検査</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">所見・医師コメント</label><textarea class="fi" id="cm-find" placeholder="指摘事項をメモ"></textarea></div>
+      <div class="fg">
+        <label class="fl">📷 検査結果写真（複数可）</label>
+        <div class="pua" onclick="document.getElementById('cm-fp').click()"><div style="font-size:22px;margin-bottom:4px">📁</div>タップして写真を追加<input type="file" id="cm-fp" accept="image/*" multiple style="display:none" onchange="hPhotos(event)"></div>
+        <div class="ppg" id="ppg"></div>
+      </div>
     </div>
-    <div class="fg"><label class="fl">所見・医師コメント</label><textarea class="fi" id="cm-find" placeholder="指摘事項をメモ"></textarea></div>
-    <div class="fg">
-      <label class="fl">📷 検査結果写真（複数可）</label>
-      <div class="pua" onclick="document.getElementById('cm-fp').click()"><div style="font-size:22px;margin-bottom:4px">📁</div>タップして写真を追加<input type="file" id="cm-fp" accept="image/*" multiple style="display:none" onchange="hPhotos(event)"></div>
-      <div class="ppg" id="ppg"></div>
+    <div class="ms-footer">
+      <button class="btn btn-t" style="margin-bottom:8px" onclick="saveCk()">💾 保存する</button>
+      <button class="btn btn-g" onclick="cm('m-ck')">キャンセル</button>
     </div>
-    <button class="btn btn-t" onclick="saveCk()">💾 保存する</button>
-    <button class="btn btn-g" onclick="cm('m-ck')">キャンセル</button>
   </div>
 </div>
 
