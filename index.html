@@ -932,7 +932,27 @@ function openCkModal(id){
   if(id){const ck=D.checkups.find(c=>c.id==id);if(ck){document.getElementById('cm-date').value=ck.date;document.getElementById('cm-hosp').value=ck.hospital||'';document.getElementById('cm-jg').value=ck.judgment||'';document.getElementById('cm-find').value=ck.finding||'';PP=ck.photos?[...ck.photos]:[];renderPP();}}
   document.getElementById('m-ck').classList.add('on');
 }
-function hPhotos(e){Array.from(e.target.files).forEach(f=>{const r=new FileReader();r.onload=ev=>{PP.push({dataUrl:ev.target.result,label:f.name.replace(/\.[^.]+$/,'')});renderPP();};r.readAsDataURL(f);});e.target.value='';}
+function hPhotos(e){
+  Array.from(e.target.files).forEach(f=>{
+    const label=f.name.replace(/\.[^.]+$/,'');
+    const r=new FileReader();
+    r.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=1200;
+        let w=img.width,h=img.height;
+        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        const dataUrl=c.toDataURL('image/jpeg',0.7);
+        PP.push({dataUrl,label});renderPP();
+      };
+      img.src=ev.target.result;
+    };
+    r.readAsDataURL(f);
+  });
+  e.target.value='';
+}
 function renderPP(){document.getElementById('ppg').innerHTML=PP.map((p,i)=>`<div class="ppi"><img src="${p.dataUrl}"><button class="ppi-rm" onclick="PP.splice(${i},1);renderPP()">✕</button><input class="ppi-l" value="${p.label}" onchange="PP[${i}].label=this.value" placeholder="項目名"></div>`).join('');}
 function saveCk(){
   const date=document.getElementById('cm-date').value;if(!date){toast('受診日を入力してください');return;}
