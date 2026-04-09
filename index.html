@@ -87,7 +87,7 @@ textarea.fi{resize:vertical;min-height:80px}
 /* ── Modal ── */
 .mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:500;align-items:flex-end;justify-content:center}
 .mo.on{display:flex;animation:fi .15s}
-.ms{background:#fff;border-radius:22px 22px 0 0;padding:20px 18px 28px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;animation:su .22s ease}
+.ms{background:#fff;border-radius:22px 22px 0 0;padding:20px 18px calc(28px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;max-height:92vh;overflow-y:auto;animation:su .22s ease;-webkit-overflow-scrolling:touch;}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .ms-bar{width:34px;height:4px;background:var(--g200);border-radius:100px;margin:0 auto 18px}
 .ms-title{font-size:19px;font-weight:800;color:var(--g900);margin-bottom:18px}
